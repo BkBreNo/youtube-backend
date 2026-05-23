@@ -1,7 +1,7 @@
 import { pool } from '../../../mysql';
 import { v4 as uuidv4 } from 'uuid';
 import { hash, compare } from 'bcrypt';
-import { sign } from 'jsonwebtoken';
+import { sign, verify } from 'jsonwebtoken';
 import { Request, Response } from 'express';
 
 class UserRepository {
@@ -10,7 +10,7 @@ class UserRepository {
         pool.getConnection((err: any, connection: any) => {
             hash(password, 10, (err, hash) => {
                 if (err) {
-                    return response.status(500).json(err)
+                    return response.status(500).json({error: err, message: 'Não foi possível criar a conta. Tente novamente'} )
                 }
 
                 connection.query(
@@ -19,9 +19,9 @@ class UserRepository {
                     (error: any, result: any, fields: any) => {
                         connection.release();
                         if (error) {
-                            return response.status(400).json(error)
+                            return response.status(400).json({error: error, message: 'Este email já está cadastrado'})
                         }
-                        response.status(200).json({ message: 'Usúario criado com sucesso' });
+                        response.status(200).json({ message: 'Usúario cadastrado com sucesso!' });
                     }
                 )
             })
@@ -64,8 +64,31 @@ class UserRepository {
         })
     }
 
+    getUser(request: Request, response: Response) {
+        const decode: any = verify(request.headers.authorization as string, process.env.SECRET as string);
+        if (decode.email) {
+            pool.getConnection((error, conn) => {
+                conn.query(
+                    'SELECT * FROM users WHERE email = ?',
+                    [decode.email],
+                    (error, resultado, fields) => {
+                        conn.release();
+                        if (error) {
+                            return response.status(400).json({ error: error, response: null})
+                        }
 
-
+                       return response.status(201).send({
+                            user: {
+                                nome: resultado[0].name,
+                                email: resultado[0].email,
+                                id: resultado[0].user_id  
+                            }
+                       })
+                    }
+                )
+            })
+        }
+    }
 }
 
 export { UserRepository };
