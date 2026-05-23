@@ -22,4 +22,4 @@ app.use('/user', userRoutes);
 app.use('/videos', videosRoutes);
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
-app.listen(4000);
+app.listen(process.env.PORT);
