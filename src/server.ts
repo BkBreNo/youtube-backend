@@ -22,4 +22,14 @@ app.use('/user', userRoutes);
 app.use('/videos', videosRoutes);
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
-app.listen(process.env.PORT);
+process.on('uncaughtException', (err) => {
+    console.error('Erro não capturado:', err);
+});
+
+process.on('unhandledRejection', (reason) => {
+    console.error('Promise rejeitada:', reason);
+});
+
+app.listen(process.env.PORT, () => {
+    console.log(`Servidor rodando na porta ${process.env.PORT}`);
+});
