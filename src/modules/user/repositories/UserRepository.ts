@@ -1,4 +1,5 @@
 import { pool } from '../../../mysql';
+import { PoolConnection } from 'mysql2';
 import { v4 as uuidv4 } from 'uuid';
 import { hash, compare } from 'bcrypt';
 import { sign, verify } from 'jsonwebtoken';
@@ -7,7 +8,7 @@ import { Request, Response } from 'express';
 class UserRepository {
     create(request: Request, response: Response) {
         const { name, email, password } = request.body;
-        pool.getConnection((err: any, connection: any) => {
+        pool.getConnection((err: any, connection: PoolConnection) => {
             if (err) {
                 console.error('Erro de conexão:', err);
                 return response.status(500).json({ message: 'Erro ao conectar com o banco', error: err.message, code: err.code });
@@ -38,7 +39,7 @@ class UserRepository {
 
     login(request: Request, response: Response) {
         const { email, password } = request.body;
-        pool.getConnection((err: any, connection: any) => {
+        pool.getConnection((err: any, connection: PoolConnection) => {
 
             connection.query(
                 'SELECT * FROM users WHERE email = ?',
@@ -72,11 +73,12 @@ class UserRepository {
     getUser(request: Request, response: Response) {
         const decode: any = verify(request.headers.authorization as string, process.env.SECRET as string);
         if (decode.email) {
-            pool.getConnection((error, conn) => {
+            pool.getConnection((error, conn: PoolConnection) => {
                 conn.query(
                     'SELECT * FROM users WHERE email = ?',
                     [decode.email],
-                    (error, resultado, fields) => {
+                    (error, results) => {
+                        const rows = results as any[];
                         conn.release();
                         if (error) {
                             return response.status(400).json({ error: error, response: null })
@@ -84,9 +86,9 @@ class UserRepository {
 
                         return response.status(201).send({
                             user: {
-                                nome: resultado[0].name,
-                                email: resultado[0].email,
-                                id: resultado[0].user_id
+                                nome: rows[0].name,
+                                email: rows[0].email,
+                                id: rows[0].user_id,
                             }
                         })
                     }

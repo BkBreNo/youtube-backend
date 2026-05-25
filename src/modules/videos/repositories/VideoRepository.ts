@@ -1,4 +1,5 @@
 import { pool } from '../../../mysql';
+import { PoolConnection } from 'mysql2';
 import { v4 as uuidv4 } from 'uuid';
 import { hash, compare } from 'bcrypt';
 import { sign } from 'jsonwebtoken';
@@ -9,7 +10,7 @@ class VideoRepository {
         const { title, description, user_id, date, views } = request.body;
         const image = request.file?.filename;
 
-        pool.getConnection((err: any, connection: any) => {
+        pool.getConnection((err: any, connection: PoolConnection) => {
 
             connection.query(
                 'INSERT INTO videos (video_id, user_id, title, description, date, views, image) VALUES (?,?,?,?,?,?,?)',
@@ -27,7 +28,7 @@ class VideoRepository {
 
     getVideos(request: Request, response: Response) {
         const { user_id } = request.query;
-        pool.getConnection((err: any, connection: any) => {
+        pool.getConnection((err: any, connection: PoolConnection) => {
 
             connection.query(
                 'SELECT * FROM videos WHERE user_id = ?',
@@ -47,7 +48,7 @@ class VideoRepository {
 
     searchVideos(request: Request, response: Response) {
         const { search } = request.query;
-        pool.getConnection((err: any, connection: any) => {
+        pool.getConnection((err: any, connection: PoolConnection) => {
 
             connection.query(
                 `SELECT videos.*, users.name as user_name 
@@ -70,7 +71,7 @@ class VideoRepository {
 
     addViews(request: Request, response: Response) {
         const { video_id } = request.body;
-        pool.getConnection((err: any, connection: any) => {
+        pool.getConnection((err: any, connection: PoolConnection) => {
 
             connection.query(
                 'UPDATE videos SET views = views + 1 WHERE video_id = ?',
