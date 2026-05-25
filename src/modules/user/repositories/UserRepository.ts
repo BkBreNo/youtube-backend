@@ -8,9 +8,13 @@ class UserRepository {
     create(request: Request, response: Response) {
         const { name, email, password } = request.body;
         pool.getConnection((err: any, connection: any) => {
+            if (err) {
+                return response.status(500).json({ message: 'Erro ao conectar com o banco' });
+            }
+            
             hash(password, 10, (err, hash) => {
                 if (err) {
-                    return response.status(500).json({error: err, message: 'Não foi possível criar a conta. Tente novamente'} )
+                    return response.status(500).json({ error: err, message: 'Não foi possível criar a conta. Tente novamente' })
                 }
 
                 connection.query(
@@ -19,7 +23,7 @@ class UserRepository {
                     (error: any, result: any, fields: any) => {
                         connection.release();
                         if (error) {
-                            return response.status(400).json({error: error, message: 'Este email já está cadastrado'})
+                            return response.status(400).json({ error: error, message: 'Este email já está cadastrado' })
                         }
                         response.status(200).json({ message: 'Usúario cadastrado com sucesso!' });
                     }
@@ -74,16 +78,16 @@ class UserRepository {
                     (error, resultado, fields) => {
                         conn.release();
                         if (error) {
-                            return response.status(400).json({ error: error, response: null})
+                            return response.status(400).json({ error: error, response: null })
                         }
 
-                       return response.status(201).send({
+                        return response.status(201).send({
                             user: {
                                 nome: resultado[0].name,
                                 email: resultado[0].email,
-                                id: resultado[0].user_id  
+                                id: resultado[0].user_id
                             }
-                       })
+                        })
                     }
                 )
             })
