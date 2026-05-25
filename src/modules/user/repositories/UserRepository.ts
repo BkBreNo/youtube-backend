@@ -9,9 +9,10 @@ class UserRepository {
         const { name, email, password } = request.body;
         pool.getConnection((err: any, connection: any) => {
             if (err) {
-                return response.status(500).json({ message: 'Erro ao conectar com o banco' });
+                console.error('Erro de conexão:', err);
+                return response.status(500).json({ message: 'Erro ao conectar com o banco', error: err.message, code: err.code });
             }
-            
+
             hash(password, 10, (err, hash) => {
                 if (err) {
                     return response.status(500).json({ error: err, message: 'Não foi possível criar a conta. Tente novamente' })
