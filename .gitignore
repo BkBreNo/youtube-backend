@@ -1,4 +1,6 @@
 node_modules
 .env
-uploads/images/*.png
-uploads/videos/*.mp4
+uploads/videos/*
+uploads/images/*
+!uploads/videos/.gitkeep
+!uploads/images/.gitkeep
