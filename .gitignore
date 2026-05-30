@@ -2,5 +2,5 @@ node_modules
 .env
 dist
 build
-!uploads/images/.gitkeep
-!uploads/videos/.gitkeep
+!uploads/images/*
+!uploads/videos/*
