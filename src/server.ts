@@ -4,6 +4,7 @@ import { videosRoutes } from './routes/videos.route';
 import { config } from 'dotenv';
 import path from 'path';
 config();
+
 const app = express();
 
 const cors = require('cors');
@@ -20,16 +21,6 @@ app.use(cors());
 app.use(express.json());
 app.use('/user', userRoutes);
 app.use('/videos', videosRoutes);
-app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
+app.use('/uploads', express.static('uploads/images/'));
 
-process.on('uncaughtException', (err) => {
-    console.error('Erro não capturado:', err);
-});
-
-process.on('unhandledRejection', (reason) => {
-    console.error('Promise rejeitada:', reason);
-});
-
-app.listen(process.env.PORT, () => {
-    console.log(`Servidor rodando na porta ${process.env.PORT}`);
-});
+app.listen(process.env.PORT);
